@@ -1,4 +1,4 @@
-package com.my.restful.test.bean;
+package com.my.restful.test.entity;
 
 public class Dessert {
 	private String name;
