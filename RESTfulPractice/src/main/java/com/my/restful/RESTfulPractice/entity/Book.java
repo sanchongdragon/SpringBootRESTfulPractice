@@ -1,8 +1,8 @@
-package com.my.restful.test.entity;
+package com.my.restful.RESTfulPractice.entity;
 
-public class Dessert {
+public class Book {
 	private String name;
-	private String material;
+	private String isbn;
 	private int price;
 	public String getName() {
 		return name;
@@ -10,11 +10,11 @@ public class Dessert {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getMaterial() {
-		return material;
+	public String getIsbn() {
+		return isbn;
 	}
-	public void setMaterial(String material) {
-		this.material = material;
+	public void setIsbn(String isbn) {
+		this.isbn = isbn;
 	}
 	public int getPrice() {
 		return price;
@@ -22,4 +22,5 @@ public class Dessert {
 	public void setPrice(int price) {
 		this.price = price;
 	}
+	
 }

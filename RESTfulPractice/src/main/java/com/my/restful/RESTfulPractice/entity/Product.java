@@ -1,4 +1,4 @@
-package com.my.restful.test.entity;
+package com.my.restful.RESTfulPractice.entity;
 
 public class Product {
 
