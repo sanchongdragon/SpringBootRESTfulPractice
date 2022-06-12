@@ -53,7 +53,7 @@ public class MockProductDAO {
 			p.setPrice(product.getPrice());
 		});
 		
-		return product;
+		return op.get();
 	}
 	
 	/**

@@ -1,17 +1,9 @@
 package com.my.restful.RESTfulPractice.rest.controller;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,20 +14,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.my.restful.RESTfulPractice.entity.Product;
 import com.my.restful.RESTfulPractice.rest.controller.queryparameter.ProductQueryParameter;
+import com.my.restful.RESTfulPractice.rest.controller.queryparameter.ProductQueryParameter2;
 import com.my.restful.RESTfulPractice.service.ProductService;
 
 @RestController
 @RequestMapping(value = "/v1",
-				consumes = MediaType.APPLICATION_JSON_VALUE)
+				produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
-	
+	private final String MAX = "2147483647";
 	@Autowired
 	private ProductService productService;
 	
@@ -50,6 +42,19 @@ public class ProductController {
 
 		Product product = productService.getProduct(id);
 		return ResponseEntity.ok().body(product);
+	}
+	
+	/**
+	 * 根據price取得特定產品
+	 * @param price
+	 * @return 產品entity
+	 * */
+	@GetMapping(path = "/products/less/")
+	public ResponseEntity<List<Product>> getProduct(@RequestParam(value = "price", defaultValue = "0") int price) {
+		System.out.printf("getProduct method variable : %s %n", price);
+
+		List<Product> productList = productService.getProduct(price);
+		return ResponseEntity.ok().body(productList);
 	}
 	
 //	@GetMapping(path = "/products")
@@ -67,14 +72,22 @@ public class ProductController {
 	
 	@GetMapping(path = "/products")
 	public ResponseEntity<List<Product>> getSpecificProduct(
-			@ModelAttribute ProductQueryParameter parameter ){
+			@ModelAttribute ProductQueryParameter2 parameter ){
 		System.out.printf("getSpecificProduct method %n");
 
 		List<Product> productList = productService.getProduct(parameter);
 		return ResponseEntity.ok().body(productList);
 	}
 
-	
+	@GetMapping(path = "/products/between")
+	public ResponseEntity<List<Product>> getSpecificProduct(
+			@RequestParam(value = "priceFrom", defaultValue = "0", required = false) int priceFrom, 
+			@RequestParam(value = "priceTo", defaultValue = MAX, required = false) int priceTo){
+		System.out.printf("getSpecificProduct method %n");
+
+		List<Product> productList = productService.getProduct(priceFrom, priceTo);
+		return ResponseEntity.ok().body(productList);
+	}
 	
 	/**
 	 * 新增產品
@@ -111,9 +124,12 @@ public class ProductController {
 	 * 刪除產品
 	 * @param id
 	 * */
-	@DeleteMapping(path = "products/{id}")
+	@DeleteMapping(path = "/products/{id}")
 	public ResponseEntity<Product> deleteProduct(@PathVariable("id") String id){
 		productService.deleteProduct(id);
 		return ResponseEntity.noContent().build();
-	}	
+	}
+	
+	
+	
 }
