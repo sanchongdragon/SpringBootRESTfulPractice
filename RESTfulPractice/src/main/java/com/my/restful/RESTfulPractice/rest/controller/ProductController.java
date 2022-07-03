@@ -45,11 +45,24 @@ public class ProductController {
 	}
 	
 	/**
+	 * 根據id取得特定產品
+	 * @param id
+	 * @return 產品entity
+	 * */
+	@GetMapping(path = "/products")
+	public ResponseEntity<List<Product>> getAllProduct() {
+		System.out.printf("getAllProduct method %n");
+
+		List<Product> product = productService.getAllProduct();
+		return ResponseEntity.ok().body(product);
+	}
+	
+	/**
 	 * 根據price取得特定產品
 	 * @param price
 	 * @return 產品entity
 	 * */
-	@GetMapping(path = "/products/less/")
+	@GetMapping(path = "/products/less")
 	public ResponseEntity<List<Product>> getProduct(@RequestParam(value = "price", defaultValue = "0") int price) {
 		System.out.printf("getProduct method variable : %s %n", price);
 
@@ -70,12 +83,21 @@ public class ProductController {
 //		return ResponseEntity.ok().body(productList);
 //	}
 	
-	@GetMapping(path = "/products")
+	@GetMapping(path = "/products/spec")
 	public ResponseEntity<List<Product>> getSpecificProduct(
 			@ModelAttribute ProductQueryParameter2 parameter ){
 		System.out.printf("getSpecificProduct method %n");
 
 		List<Product> productList = productService.getProduct(parameter);
+		return ResponseEntity.ok().body(productList);
+	}
+	
+	@GetMapping(path = "/products/sort")
+	public ResponseEntity<List<Product>> getSpecificSortProduct(
+			@ModelAttribute ProductQueryParameter2 parameter ){
+		System.out.printf("getSpecificSortProduct method %n");
+
+		List<Product> productList = productService.getSortProduct(parameter);
 		return ResponseEntity.ok().body(productList);
 	}
 
@@ -106,7 +128,7 @@ public class ProductController {
 						.buildAndExpand(product.getId()) // 將request中的物件id放入路徑當中
 						.toUri(); 
 		// created 須包含一個新的資源路徑(URI)
-		return ResponseEntity.created(location).build();
+		return ResponseEntity.created(location).contentType(MediaType.APPLICATION_JSON).build();
 	}
 	
 	/**
@@ -130,6 +152,16 @@ public class ProductController {
 		return ResponseEntity.noContent().build();
 	}
 	
+	/**
+	 * 刪除所有產品
+	 * @param id
+	 * */
+	@DeleteMapping(path = "/products")
+	public ResponseEntity<Product> deleteAllProduct(){
+		productService.deleteAllProduct();
+		return ResponseEntity.noContent().build();
+	}
+
 	
 	
 }

@@ -21,8 +21,8 @@ import com.my.restful.RESTfulPractice.rest.controller.queryparameter.ProductQuer
 @Service
 public class ProductService {
 	
-	@Autowired // 透過Autowired 來達成dependency injection
-	private MockProductDAO productDAO;
+//	@Autowired // 透過Autowired 來達成dependency injection
+//	private MockProductDAO productDAO;
 	
 	@Autowired
 	private ProductRepository productRepository;
@@ -50,6 +50,14 @@ public class ProductService {
 	}
 	
 	/**
+	 * 取得所有產品
+	 * */
+	public List<Product> getAllProduct() {
+		return productRepository.findAll();
+	}
+
+	
+	/**
 	 * 更換產品
 	 * */
 	public Product replaceProduct(String id, Product request) {
@@ -69,6 +77,13 @@ public class ProductService {
 		productRepository.deleteById(id);
 	}
 	
+	/**
+	 * 刪除所有產品
+	 * */
+	public void deleteAllProduct() {
+		productRepository.deleteAll();
+	}
+
 	public List<Product> getProduct(ProductQueryParameter2 parameter){
 		String keyword = Optional.ofNullable(parameter.getKeyword()).orElse("");
 		int priceFrom = Optional.ofNullable(parameter.getPriceFrom()).orElse(0);
@@ -76,6 +91,15 @@ public class ProductService {
 		
 		Sort sort = genSortStrategy(parameter.getOrderBy(), parameter.getSortRule());
 		return productRepository.findByPriceBetweenAndNameLikeIgnoreCase(priceFrom, priceTo, keyword);
+	}
+	
+	public List<Product> getSortProduct(ProductQueryParameter2 parameter){
+		String keyword = Optional.ofNullable(parameter.getKeyword()).orElse("");
+//		int priceFrom = Optional.ofNullable(parameter.getPriceFrom()).orElse(0);
+//		int priceTo = Optional.ofNullable(parameter.getPriceTo()).orElse(Integer.MAX_VALUE);
+		
+		Sort sort = genSortStrategy(parameter.getOrderBy(), parameter.getSortRule());
+		return productRepository.findByNameLikeIgnoreCase(keyword, sort);
 	}
 	
 	/**
@@ -90,7 +114,11 @@ public class ProductService {
 		return productRepository.findByPriceBetween(priceFrom, priceTo);
 	}
 
-	
+	/**
+	 * @param orderBy 需要依據哪一個欄位排序
+	 * @param sortRule Asc, Desc
+	 * @return Sort rule
+	 * */
 	public Sort genSortStrategy(String orderBy, String sortRule) {
 		Sort sort = Sort.unsorted();
 		
