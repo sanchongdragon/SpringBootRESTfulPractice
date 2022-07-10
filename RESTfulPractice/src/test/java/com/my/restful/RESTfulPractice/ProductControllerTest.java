@@ -1,7 +1,6 @@
 package com.my.restful.RESTfulPractice;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -10,23 +9,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,8 +33,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.my.restful.RESTfulPractice.Interface.ProductRepository;
 import com.my.restful.RESTfulPractice.entity.Product;
-import com.my.restful.RESTfulPractice.rest.controller.ProductController;
-import com.my.restful.RESTfulPractice.service.ProductService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -130,7 +122,7 @@ class ProductControllerTest {
 		JSONObject obj = new JSONObject().put("name", "mary have a banana").put("price", 900);
 
 		RequestBuilder requestBuilder = MockMvcRequestBuilders
-										.put("/v1/products/" + insertedProduct.getId())
+										.put("/v1/products/{id}", insertedProduct.getId())
 										.headers(httpHeaders)
 										.content(obj.toString());
 						
@@ -237,7 +229,7 @@ class ProductControllerTest {
 		System.out.println("end testSearchProductByPriceAsc !");
 	}
 	
-	@org.junit.jupiter.api.Test
+	@Test
 	void testSearchProductByPriceDesc() throws Exception {
 		System.out.println("start testSearchProductByPriceDesc !");
 		
@@ -293,6 +285,51 @@ class ProductControllerTest {
 		Assert.assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
 
 		System.out.println("end testSearchProductByPriceDesc !");
+	}
+
+	@Test
+	/**
+	 * 測試Post如果輸入不符合POJO限制的content預期會給出400的status
+	 * */
+	void testResponse400CreateProduct() throws Exception{
+		
+		// 3A Arrange 建立假資料
+		JSONObject content = new JSONObject().put("name", "").put("price", -1);
+		
+		RequestBuilder builder = MockMvcRequestBuilders
+									.post("/v1/products")
+									.headers(httpHeaders)
+									.content(content.toString());
+		// 3A Act 執行, Assert 斷言
+		mockMvc.perform(builder)
+				.andDo(print())
+				.andExpect(status().isBadRequest());
+				
+	}
+	
+	@Test
+	/**
+	 * 測試Put如果輸入不符合POJO限制的content預期會給出400的status
+	 * */
+	void testResponse400ReplaceProduct() throws Exception{
+		
+		// 3A Arrange 建立測資
+		Product bananaProduct = new Product();
+		bananaProduct.setName("banana");
+		bananaProduct.setPrice(500);
+		Product insertedProduct = productRepository.insert(bananaProduct);
+		JSONObject content = new JSONObject().put("name", null).put("price", -100);
+		
+		RequestBuilder builder = MockMvcRequestBuilders
+									.put("/v1/products/{id}", insertedProduct.getId())
+									.headers(httpHeaders)
+									.content(content.toString());
+		
+		// 3A Act 執行, Assert斷言
+		mockMvc.perform(builder)
+				.andDo(print())
+				.andExpect(status().isBadRequest());
+				
 	}
 
 	private Product createTestProduct(String name, int price) {

@@ -3,6 +3,8 @@ package com.my.restful.RESTfulPractice.rest.controller;
 import java.net.URI;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.my.restful.RESTfulPractice.entity.Product;
+import com.my.restful.RESTfulPractice.requestModel.ProductRequest;
+import com.my.restful.RESTfulPractice.requestModel.ProductResponse;
 import com.my.restful.RESTfulPractice.rest.controller.queryparameter.ProductQueryParameter;
 import com.my.restful.RESTfulPractice.rest.controller.queryparameter.ProductQueryParameter2;
 import com.my.restful.RESTfulPractice.service.ProductService;
+import com.my.restful.RESTfulPractice.utils.ProductConveter;
 
 @RestController
 @RequestMapping(value = "/v1",
@@ -37,10 +42,10 @@ public class ProductController {
 	 * @return 產品entity
 	 * */
 	@GetMapping(path = "/products/{id}")
-	public ResponseEntity<Product> getProduct(@PathVariable("id") String id) {
+	public ResponseEntity<ProductResponse> getProduct(@PathVariable("id") String id) {
 		System.out.printf("getProduct method variable : %s %n", id);
 
-		Product product = productService.getProduct(id);
+		ProductResponse product = productService.getProduct(id);
 		return ResponseEntity.ok().body(product);
 	}
 	
@@ -116,10 +121,10 @@ public class ProductController {
 	 * @param requestBody
 	 * */
 	@PostMapping(path = "/products")
-	public ResponseEntity<Product> createProduct(@RequestBody Product requestBody) {
+	public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest requestBody) {
 		System.out.printf("createProduct method %n");
 
-		Product product = productService.createProduct(requestBody);
+		ProductResponse product = productService.createProduct(requestBody);
 		
 		// 利用ServletUriComponentsBuilder來建立新的資源路徑
 		URI location = ServletUriComponentsBuilder
@@ -137,8 +142,9 @@ public class ProductController {
 	 * @param requestBody
 	 * */
 	@PutMapping(path = "/products/{id}")
-	public ResponseEntity<Product> replaceProduct(@PathVariable("id") String id, @RequestBody Product requestBody){
-		Product product = productService.replaceProduct(id, requestBody);
+	public ResponseEntity<ProductResponse> replaceProduct(@PathVariable("id") String id,@Valid @RequestBody ProductRequest requestBody){
+
+		ProductResponse product = productService.replaceProduct(id, requestBody);
 		return ResponseEntity.ok().body(product);
 	}
 	

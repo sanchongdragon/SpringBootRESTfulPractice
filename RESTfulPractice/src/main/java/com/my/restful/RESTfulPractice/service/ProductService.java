@@ -15,8 +15,11 @@ import com.my.restful.RESTfulPractice.dao.MockProductDAO;
 import com.my.restful.RESTfulPractice.entity.Product;
 import com.my.restful.RESTfulPractice.exception.http.NotFoundException;
 import com.my.restful.RESTfulPractice.exception.http.UnprocessableEntityException;
+import com.my.restful.RESTfulPractice.requestModel.ProductRequest;
+import com.my.restful.RESTfulPractice.requestModel.ProductResponse;
 import com.my.restful.RESTfulPractice.rest.controller.queryparameter.ProductQueryParameter;
 import com.my.restful.RESTfulPractice.rest.controller.queryparameter.ProductQueryParameter2;
+import com.my.restful.RESTfulPractice.utils.ProductConveter;
 
 @Service
 public class ProductService {
@@ -29,24 +32,28 @@ public class ProductService {
 	/**
 	 * 建立產品
 	 * */
-	public Product createProduct(Product product) {
+	public ProductResponse createProduct(ProductRequest product) {
 //		boolean isDuplicate = productRepository.findById(product.getId()).isPresent();
 //		
 //		if(isDuplicate)
 //			throw new UnprocessableEntityException("The id of the product is duplicated.");
 		
-		Product p = new Product();
+		Product requestProduct = ProductConveter.toProduct(product);
+
+//		Product p = new Product();
 //		p.setId(product.getId());
-		p.setName(product.getName());
-		p.setPrice(product.getPrice());
+//		p.setName(product.getName());
+//		p.setPrice(product.getPrice());
 		
-		return productRepository.insert(p);
+		return ProductConveter.toResponse(productRepository.insert(requestProduct));
 	}
 	/**
 	 * 取得產品
 	 * */
-	public Product getProduct(String id) {
-		return productRepository.findById(id).orElseThrow(() -> new NotFoundException("can not find this id"));
+	public ProductResponse getProduct(String id) {
+		Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("can not find this id"));
+		
+		return ProductConveter.toResponse(product);
 	}
 	
 	/**
@@ -60,15 +67,13 @@ public class ProductService {
 	/**
 	 * 更換產品
 	 * */
-	public Product replaceProduct(String id, Product request) {
-		Product product = getProduct(id);
+	public ProductResponse replaceProduct(String id, ProductRequest request) {
 		
-		Product newProduct = new Product();
-		newProduct.setId(product.getId());
-		newProduct.setName(request.getName());
-		newProduct.setPrice(request.getPrice());
-		
-		return productRepository.save(newProduct);
+		ProductResponse oldProduct = getProduct(id);
+		// 轉換請求的產品變成符合DB的model
+		Product newProduct = ProductConveter.toProduct(request);
+		newProduct.setId(oldProduct.getId());
+		return ProductConveter.toResponse(productRepository.save(newProduct));
 	}
 	/**
 	 * 刪除產品
